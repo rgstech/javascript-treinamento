@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <style>
+        body {
+
+            background-color: whitesmoke;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script>
+ //lista de cliente utilizando ajax + rest com nodejs e express / customer list using ajax + rest with nodejs and express
+ //Author: Rodrigo.Guimaraes
+ //e-mail: guimaorod[arroba]gmail.com
+
+document.addEventListener('DOMContentLoaded', function() {  
+
+    var arRecord   = []; //array principal de armazenamento de registros
+    var form       = document.forms[0];
+
+    form.onsubmit = function (e) { e.preventDefault(); }
+  
+//  ###############################   AJAX FUNCTION ################################
+    function doAjax( method, 
+                     url, 
+                     callback, 
+                     cbparam = "", 
+                     data = null ){
+
+        var xhttp = new XMLHttpRequest();
+
+        xhttp.open(method, url);
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+
+                 if(callback) {
+
+                    callback(JSON.parse(xhttp.responseText));
+
+                 }
+            
+            } else {
+                console.log("status: " + this.status );
+            }
+        }
+
+        if(data) {
+            xhttp.setRequestHeader('Content-type','application/json; charset=utf-8');
+            xhttp.send(JSON.stringify(data))
+
+        } else { 
+            
+            xhttp.send(null); }
+    }
+  
+    // #######################################################
+   
+    function fillTableWithArray(arVar = []){
+        
+        arRecord = [];
+        arRecord = arVar;
+        fillTable();
+
+    }
+   
+    function initLoad() { // carga inicial para testes
+
+              doAjax("GET", "http://localhost:3000/clientes", fillTableWithArray, "");
+            
+  
+    }
+ 
+
+     initLoad();
+  
+     setInterval(() => { // refresh para pegar novas informações 
+        initLoad();
+     }, 5000);
+
+
+    function criarRegistro() { 
+
+    var nome  =  document.formregistro.nome.value;
+    var email =  document.formregistro.email.value;
+
+        if (!validateEmail(email)) {
+
+            alert('E-Mail incorreto!');
+            return;
+
+        }
+
+        if (!validateEmpty()) {
+
+            
+                alert('Os campos não podem ficar vazios!');
+                return; 
+        }
+
+        var record = { nome, email }
+
+
+        doAjax("POST", "http://localhost:3000/clientes", fillTableWithArray, "", record);
+
+    }
+
+    function deletarRegistro(target) {
+        
+        var _id = target.parentNode.parentNode.id;
+        _id = _id.substring(3);
+    
+        doAjax("DELETE", "http://localhost:3000/clientes/"+_id, fillTableWithArray, "");
+                
+    
+
+    }
+ 
+ 
+
+    function filtrarRegistro() {  
+
+        var nome = document.getElementById("nome").value;
+
+        doAjax("GET", "http://localhost:3000/clientes/"+nome, fillTableWithArray, "");
+              console.log(arRecord);
+
+       fillTable();
+
+    }
+
+    function fillTable(table_id = 'regtable') {
+
+ 
+                clearTable();
+
+                var deletar = function (e) { deletarRegistro(e.target); };
+
+                arRecord.forEach(c => {
+
+                    criarLinhaTabela(table_id, [c.id, c.nome, c.email], ['Deletar', deletar]);
+            
+                });
+
+        
+}
+
+    function criarLinhaTabela(table_id = '', ar_data = [], ar_data_action) {
+ 
+        var tbcorpo  = document.getElementById(table_id).lastElementChild;
+
+        var linha  =  document.createElement('tr');
+        
+        linha.setAttribute('id', 'id-' + ar_data[0] );
+        var campo_nome      =  document.createElement('td');
+        var campo_email     =  document.createElement('td');
+        var campo_bt_action =  document.createElement('td');
+        
+        var texto_nome  = document.createTextNode(ar_data[1]);
+        var texto_email = document.createTextNode(ar_data[2]);
+        var bt_action   = document.createElement('button');
+
+        bt_action.classList.add('btn');
+        bt_action.classList.add('btn-danger');
+        bt_action.textContent = ar_data_action[0];
+
+        bt_action.addEventListener('click', ar_data_action[1] );
+
+        campo_nome.appendChild(texto_nome);
+        campo_email.appendChild(texto_email);
+        campo_bt_action.appendChild(bt_action);
+
+        linha.appendChild(campo_nome);
+        linha.appendChild(campo_email);
+        linha.appendChild(campo_bt_action);
+
+        tbcorpo.appendChild(linha);
+
+}
+
+    function clearTable(table_id = 'tregs') {
+
+            table_id =  'tregs';
+        
+            var nome = document.getElementById(table_id);
+
+            while (nome.firstChild) {
+
+                nome.removeChild(nome.firstChild);
+
+            }
+
+    }
+
+
+
+    document.getElementById('btadd').addEventListener( 'click', criarRegistro);
+    document.getElementById('btsearch').addEventListener( 'click', filtrarRegistro);
+    
+
+}, false);
+          
+</script> 
+</head>
+<body>
+        <div class="container">
+
+    <div class="row">
+        <div class="col-md-12">
+
+            <form name="formregistro">
+            
+                <div class="form-group">
+                    <label for="nome">Nome: </label>
+                    <input type="text" id="nome" name="nome" class="form-control" >
+                </div>
+                <div class="form-group">
+                    <label for="email">E-mail: </label>
+                    <input type="text" id="email" name="email" class="form-control" >
+                </div>
+            
+                <button name="btadd"    id="btadd"    class="btn btn-success">Adicionar</button>
+                <button name="btsearch" id="btsearch" class="btn btn-info">Pesquisar</button>
+                <button name="btclear"  id="btclear"   type="reset" class="btn btn-warning">Limpar</button>
+                <hr>
+            </form>
+
+        </div>
+
+    </div>
+
+    <div class="row"> 
+
+              <div class="col-md-12">
+
+    <table id="regtable" class="table">
+        <thead class="thead-light">
+            <tr id="tabhead">
+                <th>Nome</th>
+                <th>E-Mail</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+        <tbody id="tregs">
+    
+        </tbody>
+    </table>
+    </div>
+
+    </div>
+    </div>
+
+<script>
+
+    function validateEmail(email) 
+    {
+   
+    var re = /\S+@\S+\.\S+/;
+    return re.test(email);
+    }
+
+    function validateEmpty() 
+    {
+   
+        var nome  =  document.formregistro.nome.value;
+        var email =  document.formregistro.email.value;
+
+        if( (nome === '') || (email === '') ) {
+
+            return false;
+        }
+
+        return true;
+ 
+    }
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+    integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+    crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+    integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+    crossorigin="anonymous"></script>
+
+</body>
+</html>
