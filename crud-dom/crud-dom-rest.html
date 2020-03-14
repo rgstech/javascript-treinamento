@@ -122,11 +122,9 @@ document.addEventListener('DOMContentLoaded', function() {
         doAjax("DELETE", "http://localhost:3000/clientes/"+_id, fillTableWithArray, "");
                 
     
-
     }
  
  
-
     function filtrarRegistro() {  
 
         var nome = document.getElementById("nome").value;
@@ -200,8 +198,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
     }
-
-
 
     document.getElementById('btadd').addEventListener( 'click', criarRegistro);
     document.getElementById('btsearch').addEventListener( 'click', filtrarRegistro);
