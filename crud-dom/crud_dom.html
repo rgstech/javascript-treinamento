@@ -18,6 +18,7 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
         crossorigin="anonymous"></script>
+
     <script>
 //lista de cliente utilizando DOM pure / customer list using pure DOM manipulation
  //Author: Rodrigo.Guimaraes
@@ -28,13 +29,13 @@ document.addEventListener('DOMContentLoaded', function() {
     var arRecord   = []; //array principal de armazenamento de registros
     var arFiltrado = []; //array principal de armazenamento de registros filtrados
     var form       = document.forms[0];
-
+ 
     form.onsubmit = function (e) { e.preventDefault(); }
 
     function initLoad() { // carga inicial para testes
 
         var id    = Math.round(Math.random() * 100000);
-        var nome  = 'Rodrigo;
+        var nome  = 'Rodrigo';
         var email = 'rodrigo@email.com';
 
         arRecord.push({ id, nome, email });
