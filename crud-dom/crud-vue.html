@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" 
+          crossorigin="anonymous">
+<style>
+    
+    body { 
+        background-color: whitesmoke; 
+    }
+
+</style>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+        <script src=" https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+</head>
+<body>
+  <div id="app" class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <form name="formregistro" id="formregistro">
+                <div class="form-group">
+                    <label for="nome">Nome: </label>
+                    <input type="text" id="nome" name="nome" class="form-control" v-model="cliente.nome">
+                </div>
+                <div class="form-group">
+                    <label for="email">E-mail: </label>
+                    <input type="text" id="email" name="email" class="form-control"   v-model="cliente.email">
+                </div>
+                <button name="btadd"    id="btadd"    class="btn btn-success" @click="adicionar">Adicionar</button>
+                <button name="btsearch" id="btsearch" class="btn btn-info" @click="pesquisar">Pesquisar</button>
+                <button name="btclear"  id="btclear"   type="reset" class="btn btn-warning">Limpar</button>
+                <button name="btclear"  id="btclear"   class="btn btn-info" @click="loadlist">Exibir todos</button>
+                <hr>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+    <div class="col-md-12">
+    <table id="regtable" class="table">
+        <thead class="thead-light">
+            <tr id="tabhead">
+                <th>Nome</th>
+                <th>E-Mail</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+        <tbody id="tregs">
+            <tr v-for="cli in clientes">
+                <td>{{ cli.nome }}</td>
+                <td>{{ cli.email }}</td>
+                <td>
+                  <button class="btn btn-warning" @click="deletar(cli)">Delete</button>
+                </td>
+              </tr>
+        </tbody>
+    </table>
+    </div>
+    </div>
+  </div>
+<script>
+
+new Vue({
+        el: "#app",
+        computed: {
+           valor : function () {
+             return "hello world";
+           },
+        },
+        methods: {
+            adicionar : async function(e) {
+                    e.preventDefault();
+                //  console.log(this.cliente);
+                    this.cliente.id = Math.round(Math.random() * 100000);
+                
+                    const URL_TO_POST = 'http://127.0.0.1:3000/clientes' 
+                    
+                    let reg =  { nome: document.getElementById('nome').value,
+                    email: document.getElementById('email').value }
+                    //debugger;
+                    const res = await axios.post(URL_TO_POST, reg);
+
+                    console.log('resposta -> ' + res.status);
+                        this.loadlist();
+                      
+            },
+             deletar : async function(cliente) {
+               // e.preventDefault();
+                    const URL_TO_DELETE = 'http://127.0.0.1:3000/clientes/' + cliente.id; 
+                    
+                    const res = await axios.delete(URL_TO_DELETE);
+
+
+                    console.log('resposta -> ' + res.status);
+                    
+                        //this.clientes = this.clientes.filter( (c) => { return c.id != cliente.id } );
+
+                        this.loadlist();
+             }, 
+             
+             pesquisar : async function(e) {  
+                e.preventDefault();
+                const URL_TO_SEARCH = 'http://127.0.0.1:3000/clientes/' + document.getElementById('nome').value; 
+                    
+                    const res = await axios.get(URL_TO_SEARCH);
+
+                    
+                   console.log('resposta -> ' + res.status);
+                   console.log(res.data);
+                    
+                        //this.clientes = this.clientes.filter( (c) => { return c.id != cliente.id } );
+                    
+                        this.loadlist(Array.from(res.data));
+
+             },
+             loadlist : async function(listdata = null) {
+                  
+                   if (listdata) {
+                          this.clientes = listdata;
+                   } else {
+                     const URL_TO_FETCH = 'http://127.0.0.1:3000/clientes'  
+                     let res = await axios.get(URL_TO_FETCH);
+                     let data = res.data;
+                     this.clientes = Array.from(data);
+
+                   }
+                  
+
+             } 
+          },
+        data: {
+            clientes: [],
+            cliente : { id: null, nome: '', email: '' }
+        },
+        mounted() {
+
+              this.loadlist();
+            
+        } 
+      
+    });
+
+</script>
+
+<script>
+
+    function validateEmail(email) 
+    {
+   
+    let re = /\S+@\S+\.\S+/;
+    return re.test(email);
+    }
+
+    function validateEmpty() 
+    {
+   
+        let nome  =  document.formregistro.nome.value;
+        let email =  document.formregistro.email.value;
+
+        if( (nome === '') || (email === '') ) {
+
+            return false;
+        }
+
+        return true;
+ 
+    }
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+    integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+    crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+    integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+    crossorigin="anonymous"></script>
+
+</body>
+</html>
