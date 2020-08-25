@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title> Untitled </title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <style>
+        body {
+            background-color: whitesmoke;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+</head>
+  <body>
+    <div id="app">
+        <div class="container">
+
+            <div class="row">
+                    <div class="col-md-12">
+
+<form name="formregistro"  @submit.prevent="">
+        <div class="form-group">
+     <label for="nome">Nome: </label>
+        <input type="text" id="nome" name="nome"  class="form-control" v-model="item.name"> 
+        </div>
+        <div class="form-group">
+    <label for="descricao">Descrição: </label>
+        <input type="text" id="desc" name="desc"  class="form-control"  v-model="item.desc" >
+        </div> 
+
+    <button name="btadd"     class="btn btn-success" @click="addRegistro">Adicionar</button>
+    <button name="btsearch"  class="btn btn-info"    @click="filtrarRegistro">Pesquisar</button>
+    <button name="btclear"   class="btn btn-warning" type="reset">Limpar</button>
+    <button name="btrefresh" class="btn btn-info" @click="reloadList">Ver todos</button>
+    <hr>
+</form>
+
+</div>
+
+</div>
+
+<div class="row"> 
+
+<div class="col-md-12">
+<table id="regtable"  class="table">
+    <thead  class="thead-light">
+        <tr id="tabhead">
+            <th>Nome</th>
+            <th>Descrição</th>
+            <th>Ação</th>
+        </tr>
+    </thead>
+    <tbody id="tregs">
+        <tr v-for="item in listitens" :key="item"> 
+           <td>{{ item.name }}</td>
+           <td>{{ item.desc }}</td>
+           <td><button class="btn btn-danger" @click="removeRegistro(item)"> Excluir</button></td>    
+        </tr>
+    </tbody>
+</table>
+</div>
+
+</div>
+</div>
+    </div>
+
+    <script>
+      //lista de itens utilizando VueJS sem backend / item list using VueJS framework without backend
+      //Author: Rodrigo.Guimaraes
+      //e-mail: guimaorod[arroba]gmail.com
+      //license: LGPL 
+      let vm = new Vue({
+            el: "#app", 
+            data: {
+                arritems: [  {_id: 1, name: 'Iogurte',         desc: 'iogurte morango lact'},
+                             {_id: 2, name: 'bicoito nesfit',  desc: 'biscoito nesfit integral'},
+                             {_id: 3, name: 'cerveja bohemia', desc: 'cerveja bohemia em lata'} ], 
+                 listitens: [],
+                 item: {},
+                 filtereditens: []
+               
+                 
+             },
+            methods: { 
+                addRegistro(){
+                    this.item._id = Math.round(Math.random() * 100000);
+                    this.arritems.push(this.item)
+                    this.item = {}
+                    this.reloadList()
+
+                },
+                filtrarRegistro() {
+                   this.filtereditens = this.arritems.filter( (it) => {
+
+                           return it.name === this.item.name
+
+                     });
+                    
+                     this.loadList(this.filtereditens)
+
+                },
+                removeRegistro(reg) {   
+                    this.arritems = this.arritems.filter( item => {
+                        return reg._id != item._id;
+                    });
+                     
+                    this.loadList( this.arritems )
+                },
+                loadList(data = []){
+                  
+                    this.listitens = data
+                },
+                reloadList(){
+                    this.loadList( this.arritems )
+                }
+
+            },
+            computed: { },
+            mounted() { 
+             
+                this.loadList( this.arritems )
+            }
+
+            
+            
+            
+      });
+    </script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+    integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+    crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+    integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+    crossorigin="anonymous"></script>
+
+  </body>
+</html>
