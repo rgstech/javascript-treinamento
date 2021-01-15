@@ -67,5 +67,5 @@ app.post('/clientes', (req, res)=> {
 
 
 app.listen(3000, () => {
-    console.log('Backend funcionando 2...');
+    console.log('Backend running...');
 })
